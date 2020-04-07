@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "kawai-todo",
+    "name": "kawai To Do",
+    "description" : "kawai To Do app made with React-native",
     "slug": "kawai-todo",
     "platforms": [
       "ios",
