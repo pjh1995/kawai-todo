@@ -30,6 +30,7 @@ export default class ToDo extends Component{
                         <TextInput 
                             style={[
                                 styles.text, 
+                                styles.input,
                                 isCompleted ? styles.completeText : styles.unCompleteText
                             ]} 
                             value={toDoValue}
@@ -41,6 +42,7 @@ export default class ToDo extends Component{
                     ) : (
                         <Text style={[
                             styles.text,
+                            styles.input,
                             isCompleted ? styles.completeText : styles.unCompleteText
                             ]}
                         >
@@ -143,8 +145,10 @@ const styles = StyleSheet.create({
     actionContainer: {
         marginVertical: 10,
         marginHorizontal: 10
-    },input: {
+    },
+    input: {
+        width: width / 2,
         marginVertical: 15,
-        width: width / 2
+        paddingBottom: 5
     }
 })
