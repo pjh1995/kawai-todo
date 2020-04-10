@@ -13,9 +13,10 @@ export default class ToDo extends Component{
         text:PropTypes.string.isRequired,
         isCompleted: PropTypes.bool.isRequired,
         deleteToDo: PropTypes.func.isRequired,
-        id : PropTypes.number.isRequiredm,
+        id : PropTypes.string.isRequired,
         unCompleteToDo: PropTypes.func.isRequired,
-        completeToDo: PropTypes.func.isRequired
+        completeToDo: PropTypes.func.isRequired,
+        updateToDo : PropTypes.func.isRequired
     }
     state = {
         isEditing: false,
@@ -79,7 +80,10 @@ export default class ToDo extends Component{
                                 <Text style={styles.actionText}>✏️</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity onPressOut={() => deleteToDo(id)}>
+                        <TouchableOpacity onPressOut={(event) => {
+                            event.stopPropagation();
+                            deleteToDo(id);
+                        }}>
                             <View style={styles.actionContainer}>
                                 <Text style={styles.actionText}>❌</Text>
                             </View>
@@ -89,7 +93,8 @@ export default class ToDo extends Component{
             </View>
         );
     }
-    _toggleComplete = () => {
+    _toggleComplete = (event) => {
+        event.stopPropagation();
         const {isCompleted, unCompleteToDo, completeToDo, id} = this.props;
         if(isCompleted){
             unCompleteToDo(id);
@@ -97,10 +102,15 @@ export default class ToDo extends Component{
             completeToDo(id);
         }
     };
-    _startEditing = () => {
+    _startEditing = (event) => {
+        event.stopPropagation();
         this.setState({ isEditing: true});
     };
-    _finishEditing = () => {
+    _finishEditing = (event) => {
+        event.stopPropagation();
+        const {toDoValue} = this.state;
+        const {id,updateToDo} = this.props;
+        updateToDo(id,toDoValue);
         this.setState({
             isEditing: false
         })

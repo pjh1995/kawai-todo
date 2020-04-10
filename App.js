@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar, TextInput, Dimensions,Platform, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, StatusBar, TextInput, Dimensions,Platform, ScrollView, AsyncStorage } from 'react-native';
 import { AppLoading } from "expo";
 import ToDo from "./ToDo";
 
@@ -17,7 +17,6 @@ export default class App extends React.Component {
   render(){
     const {newToDo,loadedToDos, toDos} = this.state;
     if(!loadedToDos){
-      console.log(toDos)
       return <AppLoading />
     }
     return (
@@ -36,12 +35,15 @@ export default class App extends React.Component {
             onSubmitEditing={this._addToDo}
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            {Object.values(toDos).map(toDo => (
+            {Object.values(toDos)
+            .reverse()
+            .map(toDo => (
               <ToDo 
                 key={toDo.id}
                 deleteToDo={this._deleteToDo}
                 unCompleteToDo={this._unCompleteToDo}
                 completeToDo={this._completeToDo}
+                updateToDo={this._updateToDo}
                 {...toDo}
               />
             ))}
@@ -55,17 +57,22 @@ export default class App extends React.Component {
       newToDo : text
     })
   };
-  _loadToDos = () => {
-    this.setState({
-      loadedToDos : true
-    })
+  _loadToDos = async () => {
+    try {
+        const toDos = await AsyncStorage.getItem("toDos");
+        this.setState({
+          loadedToDos : true,
+          toDos: JSON.parse(toDos)
+        });
+    }catch(e){
+      console.log(e);
+    }
   };
   _addToDo = () => {
     const { newToDo } = this.state;
-    console.log(newToDo);
     if(newToDo !== ""){
       this.setState(prevState => {
-        const Id = +Date.now()
+        const Id = +Date.now()+"";
         const newToDoObject = {
           [Id]:{
             id : Id,
@@ -82,7 +89,7 @@ export default class App extends React.Component {
             ...newToDoObject
           }
         }
-        console.log(newState)
+        this._saveToDos(newState.toDos);
         return {...newState}
       })
     }
@@ -95,6 +102,7 @@ export default class App extends React.Component {
         ...prevState,
         ...toDos
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   }
@@ -110,6 +118,7 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return {...newState};
     });
   }
@@ -125,8 +134,32 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return {...newState};
     });
+  };
+  _updateToDo = (id,text) => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        toDos: {
+          ...prevState.toDos,
+          [id]:{
+            ...prevState.toDos[id],
+            text: text
+          }
+        }
+      };
+      this._saveToDos(newState.toDos);
+      return {...newState};
+    });
+  }
+  _saveToDos = (newToDos) => {
+    console.log(newToDos)
+    
+    const saveToDos = AsyncStorage.setItem("toDos",JSON.stringify(newToDos));
+    //asyncStorage는 string만 가능
+    
   }
 }
 
